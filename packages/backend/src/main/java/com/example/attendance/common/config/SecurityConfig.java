@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -61,8 +61,8 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
                 .ignoringRequestMatchers(
-                    new AntPathRequestMatcher("/api/auth/login"),
-                    new AntPathRequestMatcher("/api/auth/logout")
+                    PathPatternRequestMatcher.withDefaults().matcher("/api/auth/login"),
+                    PathPatternRequestMatcher.withDefaults().matcher("/api/auth/logout")
                 )
             )
             .sessionManagement(session ->

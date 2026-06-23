@@ -44,7 +44,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional(readOnly = true)
     public Page<EmployeeResponse> findAll(Pageable pageable, UUID departmentId, Role role, boolean includeRetired) {
-        Specification<Employee> spec = Specification.where(null);
+        Specification<Employee> spec = Specification.allOf();
 
         if (departmentId != null) {
             spec = spec.and(EmployeeSpecifications.hasDepartmentId(departmentId));

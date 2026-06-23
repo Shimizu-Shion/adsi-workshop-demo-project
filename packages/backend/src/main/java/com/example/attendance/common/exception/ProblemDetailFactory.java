@@ -4,8 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 
 import java.net.URI;
+import java.util.Objects;
 
 public final class ProblemDetailFactory {
+
+    private static final URI ABOUT_BLANK = Objects.requireNonNull(URI.create("about:blank"));
 
     private ProblemDetailFactory() {
     }
@@ -13,7 +16,7 @@ public final class ProblemDetailFactory {
     public static ProblemDetail create(HttpStatus status, String title, String detail) {
         var problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setTitle(title);
-        problem.setType(URI.create("about:blank"));
+        problem.setType(ABOUT_BLANK);
         return problem;
     }
 

@@ -34,6 +34,11 @@ packages/infra/cdk.out/
 packages/infra/*.js
 packages/infra/*.d.ts
 
+### Node (root monorepo) ###
+/node_modules/
+package-lock.json
+pnpm-lock.yaml
+
 ### Local config ###
 .env
 .env.local
