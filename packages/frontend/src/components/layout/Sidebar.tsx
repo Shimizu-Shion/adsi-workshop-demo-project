@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Clock, FileText, Users } from "lucide-react";
+import { Building2, Clock, History, LayoutDashboard, Users } from "lucide-react";
 import Link from "next/link";
 import {
   Sidebar,
@@ -13,15 +13,22 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-
-const menuItems = [
-  { title: "打刻", href: "/attendance", icon: Clock },
-  { title: "社員管理", href: "/employees", icon: Users },
-  { title: "部署管理", href: "/departments", icon: Building2 },
-  { title: "月次レポート", href: "/reports", icon: FileText },
-];
+import { useAuth } from "@/features/auth/useAuth";
 
 export function AppSidebar() {
+  const { user } = useAuth();
+
+  const commonItems = [
+    { title: "ダッシュボード", href: "/dashboard", icon: LayoutDashboard },
+    { title: "打刻", href: "/attendance", icon: Clock },
+    { title: "勤怠履歴", href: "/history", icon: History },
+  ];
+
+  const adminItems = [
+    { title: "社員管理", href: "/admin/employees", icon: Users },
+    { title: "部署管理", href: "/admin/departments", icon: Building2 },
+  ];
+
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
@@ -32,7 +39,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>メニュー</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {commonItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton render={<Link href={item.href} />}>
                     <item.icon />
@@ -43,6 +50,24 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {user?.role === "ADMIN" && (
+          <SidebarGroup>
+            <SidebarGroupLabel>管理</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton render={<Link href={item.href} />}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );
