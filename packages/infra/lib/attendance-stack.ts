@@ -182,6 +182,9 @@ export class AttendanceStack extends cdk.Stack {
         healthyThresholdCount: 2,
         unhealthyThresholdCount: 3,
       },
+      // TODO: Spring Session + DynamoDB でセッション外出しに移行する。
+      // Sticky Session はデプロイ・タスク再起動でセッションが消える暫定対応。
+      stickinessCookieDuration: cdk.Duration.hours(1),
     });
 
     alb.addListener("HttpListener", {

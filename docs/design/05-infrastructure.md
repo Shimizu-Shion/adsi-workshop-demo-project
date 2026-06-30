@@ -354,3 +354,25 @@ Actuator エンドポイントは Spring Security で認証不要に設定。本
   2. Docker イメージビルド + ECR push
   3. CDK deploy（prod 環境）
 ```
+
+---
+
+## 既知の改善項目
+
+### セッション管理の外出し
+
+**現状**: セッションは JVM メモリ内に保持。ALB Sticky Session で同一タスクにルーティング。
+
+**問題**: デプロイ・タスク再起動・スケールアウト時にセッションが消失し、ユーザーが再ログインを強いられる。
+
+**改善策**: Spring Session + DynamoDB でセッションを外部化する。
+
+```groovy
+// build.gradle.kts に追加
+implementation("org.springframework.session:spring-session-data-dynamodb")
+```
+
+- DynamoDB テーブルを CDK で作成（TTL 付き、オンデマンドキャパシティ）
+- ALB Sticky Session は不要になる
+- タスク数を自由にスケールできるようになる
+- デプロイ時にもセッションが維持される
