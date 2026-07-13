@@ -33,7 +33,7 @@ export function useClockIn() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (memo?: string) => clockIn(user?.id, memo),
+    mutationFn: (memo?: string) => clockIn(user!.id, memo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TODAY_STATUS_KEY });
       toast.success("出勤を記録しました");
@@ -46,7 +46,7 @@ export function useClockOut() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (memo?: string) => clockOut(user?.id, memo),
+    mutationFn: (memo?: string) => clockOut(user!.id, memo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TODAY_STATUS_KEY });
       toast.success("退勤を記録しました");
@@ -86,7 +86,7 @@ export function useTeamAttendance(month: string) {
 
   return useQuery({
     queryKey: [...TEAM_KEY, user?.id, month],
-    queryFn: () => fetchTeamAttendance(user?.id, month),
+    queryFn: () => fetchTeamAttendance(user!.id, month),
     enabled: !!user?.isManager && !!month,
   });
 }
