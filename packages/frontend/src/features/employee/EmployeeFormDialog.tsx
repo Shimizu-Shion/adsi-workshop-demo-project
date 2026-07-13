@@ -29,6 +29,11 @@ interface EmployeeFormDialogProps {
   isSubmitting: boolean;
 }
 
+const ROLE_ITEMS: Record<string, string> = {
+  EMPLOYEE: "一般",
+  ADMIN: "管理者",
+};
+
 interface FormState {
   name: string;
   email: string;
@@ -147,6 +152,7 @@ export function EmployeeFormDialog({
           <Select
             value={form.departmentId || null}
             onValueChange={(value) => setForm({ ...form, departmentId: value ?? "" })}
+            items={Object.fromEntries(departments.map((d) => [d.id, d.name]))}
           >
             <SelectTrigger>
               <SelectValue placeholder="部署を選択" />
@@ -171,6 +177,7 @@ export function EmployeeFormDialog({
                 role: (value as "ADMIN" | "EMPLOYEE") ?? "EMPLOYEE",
               })
             }
+            items={ROLE_ITEMS}
           >
             <SelectTrigger>
               <SelectValue placeholder="ロールを選択" />
