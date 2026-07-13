@@ -44,6 +44,29 @@ const STATUS_LABELS = {
   CLOCKED_OUT: "退勤済み",
 } as const;
 
+interface MemoInputProps {
+  memoType: "clock-in" | "clock-out";
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}
+
+function MemoInput({ memoType, value, onChange, placeholder }: MemoInputProps) {
+  return (
+    <div className="max-w-md mx-auto">
+      <textarea
+        data-memo-type={memoType}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={200}
+        rows={2}
+        className="w-full rounded-md border px-3 py-2 text-sm resize-none"
+      />
+    </div>
+  );
+}
+
 type CatAnimation = "idle" | "entering" | "working";
 
 function CatDisplay({ animation }: { animation: CatAnimation }) {
@@ -86,6 +109,8 @@ export function ClockButtons() {
   const clockInMutation = useClockIn();
   const clockOutMutation = useClockOut();
   const [catAnimation, setCatAnimation] = useState<CatAnimation>("idle");
+  const [clockInMemo, setClockInMemo] = useState("");
+  const [clockOutMemo, setClockOutMemo] = useState("");
 
   const status = todayStatus?.status ?? "NOT_CLOCKED_IN";
 
@@ -99,9 +124,18 @@ export function ClockButtons() {
 
   const handleClockIn = () => {
     setCatAnimation("entering");
-    clockInMutation.mutate(undefined, {
+    clockInMutation.mutate(clockInMemo || undefined, {
       onSuccess: () => {
+        setClockInMemo("");
         setTimeout(() => setCatAnimation("working"), 800);
+      },
+    });
+  };
+
+  const handleClockOut = () => {
+    clockOutMutation.mutate(clockOutMemo || undefined, {
+      onSuccess: () => {
+        setClockOutMemo("");
       },
     });
   };
@@ -119,7 +153,7 @@ export function ClockButtons() {
     );
   }
 
-  const canClockIn = status === "NOT_CLOCKED_IN";
+  const canClockIn = status === "NOT_CLOCKED_IN" || status === "CLOCKED_OUT";
   const canClockOut = status === "CLOCKED_IN";
   const isPending = clockInMutation.isPending || clockOutMutation.isPending;
 
@@ -137,6 +171,22 @@ export function ClockButtons() {
         )}
       </div>
       <CatDisplay animation={catAnimation} />
+      {canClockIn && (
+        <MemoInput
+          memoType="clock-in"
+          value={clockInMemo}
+          onChange={setClockInMemo}
+          placeholder="勤務形態や予定をメモ（任意）"
+        />
+      )}
+      {canClockOut && (
+        <MemoInput
+          memoType="clock-out"
+          value={clockOutMemo}
+          onChange={setClockOutMemo}
+          placeholder="退勤メモ（任意）"
+        />
+      )}
       <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
         <button
           type="button"
@@ -150,7 +200,7 @@ export function ClockButtons() {
         <button
           type="button"
           disabled={!canClockOut || isPending}
-          onClick={() => clockOutMutation.mutate()}
+          onClick={handleClockOut}
           className="flex flex-col items-center justify-center gap-2 rounded-xl bg-orange-500 py-8 text-white transition-colors hover:bg-orange-600 active:bg-orange-700 disabled:bg-gray-200 disabled:text-gray-400"
         >
           <LogOut className="h-8 w-8" />
