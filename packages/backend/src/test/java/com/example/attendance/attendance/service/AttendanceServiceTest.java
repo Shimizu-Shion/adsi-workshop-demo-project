@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +76,27 @@ class AttendanceServiceTest {
     @Nested
     @DisplayName("出勤打刻")
     class ClockIn {
+
+        @Test
+        @DisplayName("出勤中に再度出勤すると409エラーになる")
+        void clockIn_alreadyClockedIn_throwsConflict() {
+            // Arrange
+            when(employeeRepository.findById(employee.getId())).thenReturn(Optional.of(employee));
+            when(attendanceRepository.findByEmployeeIdAndWorkDateAndClockOutIsNull(employee.getId(), TODAY_TOKYO))
+                    .thenReturn(Optional.of(AttendanceRecord.builder()
+                            .id(UUID.randomUUID())
+                            .employee(employee)
+                            .workDate(TODAY_TOKYO)
+                            .clockIn(FIXED_INSTANT)
+                            .build()));
+
+            // Act & Assert
+            assertThatThrownBy(() -> service.clockIn(employee.getId()))
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Already clocked in");
+
+            verify(attendanceRepository, never()).save(any());
+        }
 
         @Test
         @DisplayName("正常に出勤打刻ができる")

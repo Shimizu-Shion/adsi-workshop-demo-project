@@ -119,7 +119,7 @@ export function ClockButtons() {
     );
   }
 
-  const canClockIn = status === "NOT_CLOCKED_IN" || status !== "CLOCKED_OUT";
+  const canClockIn = status === "NOT_CLOCKED_IN";
   const canClockOut = status === "CLOCKED_IN";
   const isPending = clockInMutation.isPending || clockOutMutation.isPending;
 
