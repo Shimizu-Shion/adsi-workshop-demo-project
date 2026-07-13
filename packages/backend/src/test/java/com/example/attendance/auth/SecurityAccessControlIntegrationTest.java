@@ -118,7 +118,8 @@ class SecurityAccessControlIntegrationTest {
         void clockIn() throws Exception {
             mockMvc.perform(post("/api/attendance/clock-in")
                     .with(csrf())
-                    .param("employeeId", employeeId.toString()))
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content("{\"employeeId\":\"" + employeeId + "\"}"))
                 .andExpect(status().isUnauthorized());
         }
 
@@ -135,6 +136,17 @@ class SecurityAccessControlIntegrationTest {
         void allAttendance() throws Exception {
             mockMvc.perform(get("/api/attendance/all")
                     .param("month", "2024-06"))
+                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("PATCH /api/attendance/{id}/memo")
+        void updateMemo() throws Exception {
+            mockMvc.perform(patch("/api/attendance/{id}/memo", UUID.randomUUID())
+                    .with(csrf())
+                    .param("currentUserId", employeeId.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"clockInMemo\": \"test\"}"))
                 .andExpect(status().isUnauthorized());
         }
     }
@@ -247,7 +259,8 @@ class SecurityAccessControlIntegrationTest {
             mockMvc.perform(post("/api/attendance/clock-in")
                     .session(employeeSession)
                     .with(csrf())
-                    .param("employeeId", employeeId.toString()))
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content("{\"employeeId\":\"" + employeeId + "\"}"))
                 .andExpect(status().isCreated());
         }
 

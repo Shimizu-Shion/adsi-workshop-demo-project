@@ -4,10 +4,13 @@ import com.example.attendance.attendance.domain.AttendanceStatus;
 import com.example.attendance.attendance.domain.WorkDuration;
 import com.example.attendance.attendance.dto.AttendanceHistoryResponse;
 import com.example.attendance.attendance.dto.AttendanceRecordResponse;
+import com.example.attendance.attendance.dto.ClockInRequest;
+import com.example.attendance.attendance.dto.ClockOutRequest;
 import com.example.attendance.attendance.dto.DailyAttendanceResponse;
 import com.example.attendance.attendance.dto.MonthlySummaryResponse;
 import com.example.attendance.attendance.dto.TeamMemberSummaryResponse;
 import com.example.attendance.attendance.dto.TodayStatusResponse;
+import com.example.attendance.attendance.dto.UpdateMemoRequest;
 import com.example.attendance.attendance.entity.AttendanceRecord;
 import com.example.attendance.attendance.repository.AttendanceRecordRepository;
 import com.example.attendance.employee.entity.Employee;
@@ -50,11 +53,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional
-    public AttendanceRecordResponse clockIn(UUID employeeId) {
-        var employee = findEmployeeOrThrow(employeeId);
+    public AttendanceRecordResponse clockIn(ClockInRequest request) {
+        var employee = findEmployeeOrThrow(request.employeeId());
         var today = LocalDate.now(clock);
 
-        attendanceRepository.findByEmployeeIdAndWorkDateAndClockOutIsNull(employeeId, today)
+        attendanceRepository.findByEmployeeIdAndWorkDateAndClockOutIsNull(request.employeeId(), today)
                 .ifPresent(existing -> {
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Already clocked in");
                 });
@@ -65,24 +68,40 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .employee(employee)
                 .workDate(today)
                 .clockIn(now)
+                .clockInMemo(request.memo())
                 .corrected(false)
                 .build();
 
         var saved = attendanceRepository.save(record);
-        log.info("Clock-in recorded for employee={} at={}", employeeId, now);
+        log.info("Clock-in recorded for employee={} at={}", request.employeeId(), now);
         return AttendanceRecordResponse.from(saved);
     }
 
     @Override
     @Transactional
-    public AttendanceRecordResponse clockOut(UUID employeeId) {
+    public AttendanceRecordResponse clockOut(ClockOutRequest request) {
         var today = LocalDate.now(clock);
-        var record = attendanceRepository.findByEmployeeIdAndWorkDateAndClockOutIsNull(employeeId, today)
+        var record = attendanceRepository.findByEmployeeIdAndWorkDateAndClockOutIsNull(request.employeeId(), today)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No active clock-in found"));
 
         record.setClockOut(Instant.now(clock));
+        record.setClockOutMemo(request.memo());
         var saved = attendanceRepository.save(record);
-        log.info("Clock-out recorded for employee={} at={}", employeeId, saved.getClockOut());
+        log.info("Clock-out recorded for employee={} at={}", request.employeeId(), saved.getClockOut());
+        return AttendanceRecordResponse.from(saved);
+    }
+
+    @Override
+    @Transactional
+    public AttendanceRecordResponse updateMemo(UUID recordId, UpdateMemoRequest request, UUID currentUserId) {
+        var record = attendanceRepository.findById(recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "404 NOT_FOUND"));
+        if (currentUserId == null || !record.getEmployee().getId().equals(currentUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "403 FORBIDDEN");
+        }
+        record.setClockInMemo(request.clockInMemo());
+        record.setClockOutMemo(request.clockOutMemo());
+        var saved = attendanceRepository.save(record);
         return AttendanceRecordResponse.from(saved);
     }
 

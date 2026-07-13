@@ -57,11 +57,11 @@ describe("ClockButtons", () => {
       expect(buttons.clockOut).toBeEnabled();
     });
 
-    it("退勤済み: 出勤・退勤ともに無効", () => {
+    it("退勤済み: 出勤ボタンが有効（再出勤可）、退勤ボタンが無効", () => {
       setupMocks("CLOCKED_OUT");
       const buttons = renderAndGetButtons();
 
-      expect(buttons.clockIn).toBeDisabled();
+      expect(buttons.clockIn).toBeEnabled();
       expect(buttons.clockOut).toBeDisabled();
     });
   });

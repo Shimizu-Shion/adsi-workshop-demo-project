@@ -1,6 +1,8 @@
 package com.example.attendance.attendance.service;
 
 import com.example.attendance.attendance.domain.AttendanceStatus;
+import com.example.attendance.attendance.dto.ClockInRequest;
+import com.example.attendance.attendance.dto.ClockOutRequest;
 import com.example.attendance.attendance.entity.AttendanceRecord;
 import com.example.attendance.attendance.repository.AttendanceRecordRepository;
 import com.example.attendance.department.entity.Department;
@@ -91,7 +93,7 @@ class AttendanceServiceTest {
                             .build()));
 
             // Act & Assert
-            assertThatThrownBy(() -> service.clockIn(employee.getId()))
+            assertThatThrownBy(() -> service.clockIn(new ClockInRequest(employee.getId(), null)))
                     .isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Already clocked in");
 
@@ -107,7 +109,7 @@ class AttendanceServiceTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
-            var result = service.clockIn(employee.getId());
+            var result = service.clockIn(new ClockInRequest(employee.getId(), null));
 
             // Assert
             assertThat(result.workDate()).isEqualTo(TODAY_TOKYO);
@@ -141,7 +143,7 @@ class AttendanceServiceTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
-            var result = service.clockOut(employee.getId());
+            var result = service.clockOut(new ClockOutRequest(employee.getId(), null));
 
             // Assert
             assertThat(result.clockOut()).isEqualTo(FIXED_INSTANT);
@@ -155,7 +157,7 @@ class AttendanceServiceTest {
                     .thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThatThrownBy(() -> service.clockOut(employee.getId()))
+            assertThatThrownBy(() -> service.clockOut(new ClockOutRequest(employee.getId(), null)))
                     .isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("No active clock-in found");
         }
