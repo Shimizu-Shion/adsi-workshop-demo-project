@@ -55,6 +55,7 @@ export function useClockOut() {
 }
 
 export function useUpdateMemo() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -62,7 +63,7 @@ export function useUpdateMemo() {
       recordId: string;
       clockInMemo: string | null;
       clockOutMemo: string | null;
-    }) => updateMemo(params.recordId, params.clockInMemo, params.clockOutMemo),
+    }) => updateMemo(params.recordId, params.clockInMemo, params.clockOutMemo, user!.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TODAY_STATUS_KEY });
     },

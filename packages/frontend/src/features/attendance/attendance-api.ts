@@ -64,11 +64,12 @@ export function updateMemo(
   recordId: string,
   clockInMemo: string | null,
   clockOutMemo: string | null,
+  currentUserId: string,
 ): Promise<AttendanceRecordResponse> {
-  return apiClient.patch<AttendanceRecordResponse>(`/api/attendance/${recordId}/memo`, {
-    clockInMemo,
-    clockOutMemo,
-  });
+  return apiClient.patch<AttendanceRecordResponse>(
+    `/api/attendance/${recordId}/memo?currentUserId=${currentUserId}`,
+    { clockInMemo, clockOutMemo },
+  );
 }
 
 export function fetchTodayStatus(employeeId: string): Promise<TodayStatusResponse> {

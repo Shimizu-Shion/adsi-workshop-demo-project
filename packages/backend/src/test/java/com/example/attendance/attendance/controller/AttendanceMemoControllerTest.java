@@ -176,6 +176,7 @@ class AttendanceMemoControllerTest {
 
             // Act & Assert
             mockMvc.perform(patch("/api/attendance/{id}/memo", RECORD_ID)
+                            .param("currentUserId", EMPLOYEE_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -192,6 +193,7 @@ class AttendanceMemoControllerTest {
 
             // Act & Assert
             mockMvc.perform(patch("/api/attendance/{id}/memo", RECORD_ID)
+                            .param("currentUserId", EMPLOYEE_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());

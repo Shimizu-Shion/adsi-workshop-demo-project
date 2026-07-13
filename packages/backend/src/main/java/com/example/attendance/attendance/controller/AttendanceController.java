@@ -48,7 +48,7 @@ public class AttendanceController {
     public AttendanceRecordResponse updateMemo(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateMemoRequest request,
-            @RequestParam(required = false, defaultValue = "00000000-0000-0000-0000-000000000000") UUID currentUserId) {
+            @RequestParam UUID currentUserId) {
         return attendanceService.updateMemo(id, request, currentUserId);
     }
 

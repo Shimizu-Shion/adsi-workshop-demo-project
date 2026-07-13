@@ -96,7 +96,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     public AttendanceRecordResponse updateMemo(UUID recordId, UpdateMemoRequest request, UUID currentUserId) {
         var record = attendanceRepository.findById(recordId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "404 NOT_FOUND"));
-        if (currentUserId != null && !record.getEmployee().getId().equals(currentUserId)) {
+        if (currentUserId == null || !record.getEmployee().getId().equals(currentUserId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "403 FORBIDDEN");
         }
         record.setClockInMemo(request.clockInMemo());

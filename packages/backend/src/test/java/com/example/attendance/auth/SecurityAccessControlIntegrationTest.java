@@ -138,6 +138,17 @@ class SecurityAccessControlIntegrationTest {
                     .param("month", "2024-06"))
                 .andExpect(status().isUnauthorized());
         }
+
+        @Test
+        @DisplayName("PATCH /api/attendance/{id}/memo")
+        void updateMemo() throws Exception {
+            mockMvc.perform(patch("/api/attendance/{id}/memo", UUID.randomUUID())
+                    .with(csrf())
+                    .param("currentUserId", employeeId.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"clockInMemo\": \"test\"}"))
+                .andExpect(status().isUnauthorized());
+        }
     }
 
     @Nested
